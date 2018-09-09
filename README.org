@@ -8,6 +8,8 @@
   - [ ] deserialize 
 - [ ] property name 需要什么规范
   - [ ] 前两个字母大小写一致
+- [ ] 画概念图说明流程
+
 
 
 ** TLDR
@@ -25,7 +27,7 @@
 - java 本身的 serialization 机制，将对象转换为字节流
 - json，借助第三方类库完成，常用的有 =jackson= ，将对象转换成 json string
  
-由于 bean 的 json 序列化是根据访问器函数，即 getter/setter 来进行的，所以，当 property name 有问题时，也会生成错误的 getter/setter
+由于 bean 的 json 序列化是根据访问器函数，即 getter/setter 来进行的，所以，当 property name 有问题时，也会生成错误的 getter/setter，
 对于上述两个 property，便是 
 | property name | getter   | setter   |
 |---------------+----------+----------|
@@ -47,6 +49,37 @@
 
 **** Java Bean Specification 相关说明
 #+BEGIN_QUOTE
+
+8.3.1 Simple properties
+
+By default, we use design patterns to locate properties by looking for methods of the form:
+
+public <PropertyType> get<PropertyName>();
+
+public void set<PropertyName>(<PropertyType> a);
+
+If we discover a matching pair of “get<PropertyName>” and
+“set<PropertyName>” methods that take and return the same type, then
+we regard these methods as defining a read-write prop- erty whose name
+will be “<propertyName>”. We will use the “get<PropertyName>” method
+to get the property value and the “set<PropertyName>” method to set
+the property value. The pair of methods may be located either in the
+same class or one may be in a base class and the other may be in a
+derived class.
+
+If we find only one of these methods, then we regard it as defining
+either a read-only or a write- only property called “<propertyName>”
+
+By default we assume that properties are neither bound nor constrained
+(see Section 7). So a simple read-write property “foo” might be
+represented by a pair of methods:
+
+public Wombat getFoo();
+
+public void setFoo(Wombat w);
+
+...
+
 8.8 Capitalization of inferred names.
 
 When we use design patterns to infer a property or event name, we need
@@ -74,6 +107,15 @@ We provide a method Introspector.decapitalize which implements this conversion r
 #+END_QUOTE
 
 
+从文档摘录不分可以看出，当拿到一个 get<PropertyName> 的时候，会发生下面的操作，以拿到 property name
+#+BEGIN_QUOTE
+get<PropertyName> -> <PropertyName> -> decapitalize(<PropertyName>)  -> property name
+#+END_QUOTE
+
+而我们都知道，在定义属性的 getter 时，通常将属性名首字母大写，也就是说，如果出现了第一个字母小写，第二个字母大写的情况，就会出现 get 后面跟连续两个大写字母的情况，
+而对于这个 getter，当需要进行 json 序列化时，根据 java bean，先是去掉 get，然后再对剩下的部分进行 decapitalize 操作，最后得到的名字就会被定义为该 getter 在 json string 中对应的 key
+
+这也就是说，明明类中定义了属性名 aName，但是由于 getter 错了(getAName)，json 序列化的时候，会错误地认为属性名是 =AName= ，最后生成的 json 中，只能看到 key 是 =AName= 而不是 =aName=
 
 
 
@@ -83,6 +125,8 @@ We provide a method Introspector.decapitalize which implements this conversion r
 
 
 
+** 一图胜千言
+[[file:image/cmap.jpg]]
 ** 参考
 - http://futuretask.blogspot.com/2005/01/java-tip-6-dont-capitalize-first-two.html
 - https://stackoverflow.com/questions/30205006/why-does-jackson-2-not-recognize-the-first-capital-letter-if-the-leading-camel-c
