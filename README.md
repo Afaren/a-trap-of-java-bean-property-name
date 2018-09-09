@@ -1,1 +1,0 @@
-# a-trap-of-java-bean-property-name
