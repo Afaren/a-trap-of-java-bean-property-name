@@ -1,16 +1,5 @@
 * a-trap-of-java-bean-property-name
-
-- [X] 问题描述
-  - [X] json serialization property name 如果头两个字母大小写不一致，会出问题
-  - [X] 说明 json serialization 不同于 java 本身的 serialization
-- [ ] 在 json serialization 的过程中，bean 如何
-  - [ ] serialize
-  - [ ] deserialize 
-- [ ] property name 需要什么规范
-  - [ ] 前两个字母大小写一致
-- [ ] 画概念图说明流程
-
-
+#+OPTIONS: toc:2 
 
 ** TLDR
 在对象的 json 序列化操作中，如果对象属性的名字 ~前两个字母大小写不一致~ ，会导致该属性值无法被正确地序列化
