@@ -32,8 +32,8 @@
  
 
 使用 getter 完成这一过程，也就是说
-getAName -> AName -> decapitalize(AName) -> AName
-getAname -> Aname -> decapitalize(Aname) -> aname
+- getAName -> AName -> decapitalize(AName) -> AName
+- getAname -> Aname -> decapitalize(Aname) -> aname
 
 
 
