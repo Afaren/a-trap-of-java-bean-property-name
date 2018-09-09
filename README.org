@@ -10,30 +10,61 @@
   - [ ] 前两个字母大小写一致
 
 ** 问题描述
-当 property name 头两个字母大小写不一致时，bean 的序列化会出现问题，无法设置该 property 的值
+当 property name 头两个字母大小写不一致时，bean 的 json 序列化会出现问题，无法设置该 property 的值
 比如：
  - aName
  - Aname
 
-
-
 ** 原因
-由于 bean 的序列化是根据访问器函数，即 getter/setter 来进行的，所以，当 property name 有问题时，也会生成错误的 getter/setter
+由于 bean 的 json 序列化是根据访问器函数，即 getter/setter 来进行的，所以，当 property name 有问题时，也会生成错误的 getter/setter
 对于上述两个 property，便是 
-| aName | getAName | setAName |
-| Aname | getAname | setAname |
+| property name | getter   | setter   |
+| aName         | getAName | setAName |
+| Aname         | getAname | setAname |
 
-在实际应用中，serialize 发生在将数据传输给另一个应用时，deserialize 发生在接收另一个应用的数据时
-
-*** json serialize
+*** json serialization
 序列化是一个通称，java 本身的序列化跟此处的 json 序列化不一样：
 - java 本身的 serialization 机制，将对象转换为字节流
 - json，借助第三方类库完成，常用的有 =jackson= ，将对象转换成 json string
  
+使用 =jackson= 做 json 的序列化时，会按照 Java Bean 的规范，调用需要序列化的对象上的所有 public getter 完成这一过程。
+简单地来说，就是下面这个样子
 
-使用 getter 完成这一过程，也就是说
-- getAName -> AName -> decapitalize(AName) -> AName
-- getAname -> Aname -> decapitalize(Aname) -> aname
+| property name | get<Property Name> | <Property Name> | decapitalize(<Property Name>) | property name after process |
+| aName         | getAName           | AName           | decapitalize(AName)           | AName                       |
+| Aname         | getAname           | Aname           | decapitalize(Aname)           | aname                       |
+| URL           | getURL             | URL             | decapitalize(URL)             | URL                         |
+
+可以看到，在上面的转换过程中， =aName=  跟 =Aname= 在转换过后跟原先的名字对应不上了。而这，却是 =Java Bean Specification= 规定的行为
+
+**** Java Bean Specification 相关说明
+#+BEGIN_QUOTE
+8.8 Capitalization of inferred names.
+
+When we use design patterns to infer a property or event name, we need
+to decide what rules to follow for capitalizing the inferred name. If
+we extract the name from the middle of a normal mixedCase style Java
+name then the name will, by default, begin with a capital letter.
+Java programmers are accustomed to having normal identifiers start
+with lower case letters. Vigorous reviewer input has convinced us that
+we should follow this same conventional rule for property and event
+names.
+
+Thus when we extract a property or event name from the middle of an
+existing Java name, we normally convert the first character to lower
+case. However to support the occasional use of all upper-case names,
+we check if the first two characters of the name are both upper case
+and if so leave it alone. So for example,
+
+“FooBah” becomes “fooBah”
+
+“Z” becomes “z”
+
+“URL” becomes “URL”
+
+We provide a method Introspector.decapitalize which implements this conversion rule.
+#+END_QUOTE
+
 
 
 
@@ -48,4 +79,4 @@
 - http://futuretask.blogspot.com/2005/01/java-tip-6-dont-capitalize-first-two.html
 - https://stackoverflow.com/questions/30205006/why-does-jackson-2-not-recognize-the-first-capital-letter-if-the-leading-camel-c
 - https://dertompson.com/2013/04/29/java-bean-getterssetters/
-
+- Java Bean Specification
