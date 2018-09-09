@@ -1,6 +1,6 @@
 * a-trap-of-java-bean-property-name
 
-- [ ] 为什么这是一个问题
+- [ ] 问题描述 
 - [ ] property name 需要什么规范
 - [ ] bean 如何
   - [ ] serialize
