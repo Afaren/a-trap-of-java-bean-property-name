@@ -1,8 +1,8 @@
 * a-trap-of-java-bean-property-name
 
-- [ ] 问题描述
-  - [ ] json serialization property name 如果头两个字母大小写不一致，会出问题
-  - [ ] 说明 json serialization 不同于 java 本身的 serialization
+- [X] 问题描述
+  - [X] json serialization property name 如果头两个字母大小写不一致，会出问题
+  - [X] 说明 json serialization 不同于 java 本身的 serialization
 - [ ] 在 json serialization 的过程中，bean 如何
   - [ ] serialize
   - [ ] deserialize 
@@ -21,21 +21,24 @@
  - Aname
 
 ** 原因
+首先需要明确，序列化是一个通称，java 本身的序列化跟此处的 json 序列化不一样：
+- java 本身的 serialization 机制，将对象转换为字节流
+- json，借助第三方类库完成，常用的有 =jackson= ，将对象转换成 json string
+ 
 由于 bean 的 json 序列化是根据访问器函数，即 getter/setter 来进行的，所以，当 property name 有问题时，也会生成错误的 getter/setter
 对于上述两个 property，便是 
 | property name | getter   | setter   |
+|---------------+----------+----------|
 | aName         | getAName | setAName |
 | Aname         | getAname | setAname |
 
 *** json serialization
-序列化是一个通称，java 本身的序列化跟此处的 json 序列化不一样：
-- java 本身的 serialization 机制，将对象转换为字节流
-- json，借助第三方类库完成，常用的有 =jackson= ，将对象转换成 json string
- 
+
 使用 =jackson= 做 json 的序列化时，会按照 Java Bean 的规范，调用需要序列化的对象上的所有 public getter 完成这一过程。
 简单地来说，就是下面这个样子
 
 | property name | get<Property Name> | <Property Name> | decapitalize(<Property Name>) | property name after process |
+|---------------+--------------------+-----------------+-------------------------------+-----------------------------|
 | aName         | getAName           | AName           | decapitalize(AName)           | AName                       |
 | Aname         | getAname           | Aname           | decapitalize(Aname)           | aname                       |
 | URL           | getURL             | URL             | decapitalize(URL)             | URL                         |
